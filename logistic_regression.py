@@ -1,14 +1,17 @@
-# ===============[ IMPORTATION DES MODULES ]===============
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+# ===============[ IMPORTS ]===============
 from sklearn.model_selection import train_test_split
 
-# ===============[ CHARGEMENT DE LA DONNÉE ]===============
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+
+# ===============[ LOADING THE DATA ]===============
 data = pd.read_csv('data.csv')
 data.test = [1 if diagnosis == 'positif' else 0 for diagnosis in data.test]
 
-# ===============[ DÉFINITION DES VARIABLES ]===============
+
+# ===============[ INITIALIZING THE DATASET ]===============
 Y = np.transpose([data.test])
 data.drop('test', axis=1, inplace=True)
 X = data.values
@@ -22,17 +25,18 @@ w = np.random.randn(n, 1)
 b = np.random.randn()
 
 
-# ===============[ FONCTIONS DIVERSES ]===============
+# ===============[ HELPER FONCTIONS ]===============
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 
-# ===============[ CALCUL DE L'ACTIVATION ]===============
+# ===============[ FORWARD PROPAGATION ]===============
 def forward_propagate(X, w, b):
     z = (X @ w) + b
     return sigmoid(z)
 
 
+# ===============[ FORWARD / BACKWARD PROPAGATION ]===============
 def forward_backward_propagation(weights, bias):
     activations = sigmoid((X @ weights) + bias)
     m = activations.shape[0]
@@ -44,7 +48,7 @@ def forward_backward_propagation(weights, bias):
     return activations, cost, gradients
 
 
-# ===============[ CALCUL DE L'EFFICACITÉ ]===============
+# ===============[ EVALUATING ACCURACY ]===============
 def compute_efficiency(X, Y, parameters):
     activations = forward_propagate(X, parameters['weights'], parameters['bias'])
     successes = 0
@@ -57,7 +61,7 @@ def compute_efficiency(X, Y, parameters):
     return (successes / m) * 100
 
 
-# ===============[ CALCUL DU COÛT ]===============
+# ===============[ EVALUATING COST ]===============
 def compute_cost(activations):
     return np.sum(-Y * np.log(activations) - ((1 - Y) * np.log(1 - activations))) / m
 
@@ -70,14 +74,14 @@ def plot_cost(costs, indexes):
     plt.show()
 
 
-# ===============[ CALCUL DES GRADIENTS ]===============
+# ===============[ COMPUTING GRADIENTS ]===============
 def compute_gradients(activations):
     gradient_weights = (X.T @ (activations - Y)) / m
     gradient_bias = np.sum(activations - Y) / m
     return {'weights': gradient_weights, 'bias': gradient_bias}
 
 
-# ===============[ DESCENTE DE GRADIENT ]===============
+# ===============[ OPTIMIZING USING GRADIENT DESCENT ]===============
 def gradient_descent(w, b, alpha, iterations):
     cost_list = []
     index_list = []
@@ -98,7 +102,7 @@ def gradient_descent(w, b, alpha, iterations):
     return parameters, cost_list, index_list
 
 
-# ===============[ EXECUTION DU PROGRAMME ]===============
+# ===============[ TRAINING THE CLASSIFIER ]===============
 parameters, cost_list, index_list = gradient_descent(w, b, alpha=5, iterations=1000)
 plot_cost(cost_list, index_list)
 

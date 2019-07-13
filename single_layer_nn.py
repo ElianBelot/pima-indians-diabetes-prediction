@@ -1,12 +1,15 @@
-# ===============[ IMPORTATION DES MODULES ]===============
+# ===============[ IMPORTS ]===============
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ===============[ CHARGEMENT DE LA DONNÉE ]===============
+
+# ===============[ LOADING THE DATA ]===============
 data = pd.read_csv('data.csv')
 data.test = [1 if diagnosis == 'positif' else 0 for diagnosis in data.test]
 
+
+# ===============[ INITIALIZING THE DATASET ]===============
 Y = np.transpose([data.test])
 data.drop('test', axis=1, inplace=True)
 
@@ -15,7 +18,7 @@ X = (X - np.min(X)) / np.max(X) - np.min(X)
 X = X.T
 
 
-# ===============[ DÉFINITION DES DIMENSIONS DES COUCHES ]===============
+# ===============[ HELPER FUNCTIONS ]===============
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
@@ -28,19 +31,8 @@ def plot_cost(costs, indexes):
     plt.show()
 
 
-# ===============[ DÉFINITION DES DIMENSIONS DES COUCHES ]===============
+# ===============[ DEFINING LAYER SIZES ]===============
 def layer_sizes(X, Y, hidden_units):
-    """
-    Arguments:
-    X -- dataset d'entrée (nombre_exemples, nombre features)
-    Y -- étiquettes du dataset (nombre_exemples, nombre sorties)
-
-    Retourne:
-    n_x -- taille de la couche d'entrée
-    n_h -- taille de la couche cachée
-    n_y -- taille de la couche de sortie
-    """
-
     n_x = X.shape[0]
     n_h = hidden_units
     n_y = Y.shape[0]
@@ -48,22 +40,8 @@ def layer_sizes(X, Y, hidden_units):
     return n_x, n_h, n_y
 
 
-# ===============[ INITIALISATION DES PARAMÈTRES ]===============
+# ===============[ INITIALIZING PARAMETERS ]===============
 def initialize_parameters(n_x, n_h, n_y):
-    """
-    Arguments:
-    n_x -- taille de la couche d'entrée
-    n_h -- taille de la couche cachée
-    n_y -- taille de la couche de sortie
-
-    Retourne:
-    parameters -- dictionnaire contenant les paramètres du réseau:
-                    W1 -- matrice de poids (n_h, n_x)
-                    b1 -- vecteur de biais (n_h, 1)
-                    W2 -- matrice de poids (n_y, n_h)
-                    b2 -- vecteur de biais (n_y, 1)
-    """
-
     W1 = np.random.randn(n_h, n_x) * 0.01
     b1 = np.zeros((n_h, 1))
 
@@ -79,17 +57,8 @@ def initialize_parameters(n_x, n_h, n_y):
     return parameters
 
 
-# ===============[ PROPAGATION AVANT ]===============
+# ===============[ FORWARD PROPAGATION ]===============
 def forward_propagation(X, parameters):
-    """
-    Arguments:
-    X -- dataset d'entrée (nombre_exemples, nombre features)
-    parameters -- dictionnaire contenant les paramètres du réseau
-
-    Retourne:
-    A2 -- vecteur des activations sigmoïde de chaque exemple
-    cache -- dictionnaire contenant Z1, A1, Z2 et A2
-    """
     W1 = parameters['W1']
     b1 = parameters['b1']
     W2 = parameters['W2']
@@ -109,17 +78,8 @@ def forward_propagation(X, parameters):
     return A2, cache
 
 
-# ===============[ CALCUL DU COÛT D'ENTROPIE CROISÉE ]===============
+# ===============[ COMPUTING BINARY CROSS-ENTROPY COST ]===============
 def compute_cost(A2, Y):
-    """
-    Arguments:
-    A2 -- vecteur des activations sigmoïde de chaque exemple (nombre_exemples, 1)
-    Y -- étiquettes du dataset (nombre_exemples, nombre sorties)
-
-    Retourne:
-    cost -- coût défini par l'équation d'entropie croisée
-    """
-
     m = Y.shape[0]
     correct_classifications = 0
 
@@ -134,18 +94,8 @@ def compute_cost(A2, Y):
     return cost, efficiency
 
 
-# ===============[ PROGAGATION ARRIÈRE ]===============
+# ===============[ BACKWARD PROPAGATION ]===============
 def backward_propagation(parameters, cache, X, Y):
-    """
-    Arguments:
-    parameters -- dictionnaire contenant les paramètres du réseau
-    cache -- dictionnaire contenant Z1, A1, Z2 et A2
-    X -- dataset d'entrée (nombre_exemples, nombre features)
-    Y -- étiquettes du dataset (nombre_exemples, nombre sorties)
-
-    Retourne:
-    gradients -- dictionnaire contenant les dérivées de chaque paramètre
-    """
     m = X.shape[1]
 
     W1 = parameters['W1']
@@ -171,17 +121,8 @@ def backward_propagation(parameters, cache, X, Y):
     return gradients
 
 
-# ===============[ MISE À JOUR DES PARAMÈTRES ]===============
+# ===============[ UPDATING PARAMETERS ]===============
 def update_parameters(parameters, grads, learning_rate=1.):
-    """
-    Arguments:
-    parameters -- dictionnaire contenant les paramètres du réseau
-    gradients -- dictionnaire contenant les dérivées de chaque paramètre
-
-    Returns:
-    parameters -- dictionnaire contenant les paramètres du réseau mis à jour
-    """
-
     W1 = parameters['W1']
     b1 = parameters['b1']
     W2 = parameters['W2']
@@ -207,22 +148,8 @@ def update_parameters(parameters, grads, learning_rate=1.):
     return parameters
 
 
-# ===============[ ASSEMBLAGE DU MODÈLE ]===============
+# ===============[ BUILDING THE MODEL ]===============
 def nn_model(X, Y, hidden_units, num_iterations=1000, learning_rate=1., print_cost=False):
-    """
-    Arguments:
-    X -- dataset d'entrée (nombre_exemples, nombre features)
-    Y -- étiquettes du dataset (nombre_exemples, nombre sorties)
-    n_h -- taille de la couche cahée
-    num_iterations -- nombre d'itérations de la descente de gradient
-    print_cost -- affichage du coût toutes les 1000 itérations
-
-    Retourne:
-    parameters -- dictionnaire contenant les paramètres appris par le modèle
-    cost_history -- liste de coût à différentes étapes d'entraînement
-    index_history -- lsite du nombre d'itération à chaque sauvegarde du coût
-    """
-
     cost_history, index_history = [], []
 
     n_x, n_h, n_y = layer_sizes(X, Y, hidden_units)
@@ -244,5 +171,5 @@ def nn_model(X, Y, hidden_units, num_iterations=1000, learning_rate=1., print_co
     return parameters, cost_history, index_history
 
 
-# ===============[ APPRENTISSAGE DU MODÈLE ]===============
+# ===============[ TRAINING THE CLASSIFIER ]===============
 learnt_parameters, cost_history, index_history = nn_model(X, Y, hidden_units=16, num_iterations=1000, learning_rate=1, print_cost=True)
